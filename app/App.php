@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App;
 
@@ -8,7 +8,7 @@ use App\Exceptions\RouteNotFoundException;
 
 class App
 {
-    private static DB $db;
+    private static ?DB $db = null;
 
     public function __construct(protected Router $router, protected array $request, protected Config $config)
     {
@@ -17,6 +17,9 @@ class App
 
     public static function db(): DB
     {
+        if (static::$db === null) {
+            throw new \RuntimeException('Database not initialized');
+        }
         return static::$db;
     }
 
@@ -26,7 +29,6 @@ class App
             echo $this->router->resolve($this->request['uri'], strtolower($this->request['method']));
         } catch (RouteNotFoundException) {
             http_response_code(404);
-
             echo View::make('error/404');
         }
     }
